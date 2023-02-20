@@ -1,0 +1,20 @@
+Re'em Kishinevsky (ID: 213057094)
+Distributed Algorithms for Communication Networks (22932)                          
+~ My solution for the 2nd assignment (MMN 12).
+─────────────────────────────────────────────────────────
+
+      How to use the program
+      ──────────────────────
+	1. Run Sinalgo and choose `centralized_computing` from the
+	   Available Projects list.
+	2. Click `Build Tree` and input the number of leaves and max fanout as prompted.
+	3. A tree will be built. Now, in Simulation Control open the drop down menu near
+	   The Run button and choose "Run Specified # of Rounds".
+	4. Set `Rounds to do` and `Refresh rate` to 1.
+	5. Now, with each click of the Run button, a single round will be simulated.
+	
+	In less then 10 rounds the algorithm will terminate and the maximal independent set will
+	be visible (all orange nodes).
+	Note that the first few rounds are the coloring stage, in which the nodes of the tree visibly change
+	colors iteratively until a 6-coloring is achieved. Then, the coloring is used to find a MIS according
+	to the algorithms shown in class.
