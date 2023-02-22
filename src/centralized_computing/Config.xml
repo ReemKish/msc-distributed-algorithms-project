@@ -8,10 +8,10 @@
 		<dimensions value="2" />
 
 		<!--Length of the deployment field along the x-axis.-->
-		<dimX value="2500" />
+		<dimX value="1500" />
 
 		<!--Length of the deployment field along the y-axis.-->
-		<dimY value="2500" />
+		<dimY value="1500" />
 
 		<!--Length of the deployment field along the z-axis.-->
 		<dimZ value="0" />
@@ -38,7 +38,7 @@
 		<canReceiveMultiplePacketsInParallel value="true" />
 
 		<!--The default type of edges to be used-->
-		<edgeType value="BidirectionalEdge" />
+		<edgeType value="centralized_computing:WeightedEdge" />
 
 		<!--If set to true, the application exits as soon as the termination criteria is met. This flag only affects the GUI mode.-->
 		<exitOnTerminationInGUI value="false" />

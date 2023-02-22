@@ -1,6 +1,9 @@
 package projects.centralized_computing;
 
 import java.util.Vector;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 import projects.centralized_computing.nodes.nodeImplementations.GraphNode;
 
@@ -12,28 +15,21 @@ import sinalgo.tools.statistics.UniformDistribution;
 
 public class CustomGlobal extends AbstractCustomGlobal {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see runtime.AbstractCustomGlobal#hasTerminated()
-   */
+  public static java.util.Random rand = sinalgo.tools.Tools.getRandomNumberGenerator(); 
+  public static boolean showWeights = true;
+  public static int round = 0;
+  public static int randomEdgeWeight;
+
   public boolean hasTerminated() {
-    return (GraphNode.n_round - GraphNode.max_round - 7 > 0);
+    return (round > 10);
   }
 
   public void preRound() {
-    if (GraphNode.n_round <= GraphNode.max_round)
-      System.out
-          .println("ROUND #" + GraphNode.n_round + "(coloring " + GraphNode.n_round + "/" + GraphNode.max_round + ")");
-    else if (GraphNode.n_round - GraphNode.max_round - 1 <= 6)
-      System.out.println("ROUND #" + GraphNode.n_round + "(mis " + (GraphNode.n_round - GraphNode.max_round - 1) + "/6)");
-    else
-      System.out.println("MIS Algorithm Finished.");
+    System.out.println("Round " + round);
   }
 
   public void postRound() {
-    GraphNode.n_round++;
-
+    round++;
   }
 
   public double logStar(double x) {
@@ -42,13 +38,29 @@ public class CustomGlobal extends AbstractCustomGlobal {
     return 1 + logStar(Math.log(x) / Math.log(2));
   }
 
-  /*
-   * Build graph button.
-   */
+  public static Set<Integer> sampleIntegersInRange(int start, int end, int count) {
+        if (end < start || count > (end - start + 1)) {
+            throw new IllegalArgumentException("Invalid range or count specified.");
+        }
+        java.util.Random rand = sinalgo.tools.Tools.getRandomNumberGenerator(); 
+        Set<Integer> sampled = new HashSet<>();
+        while (sampled.size() < count) {
+            int candidate = rand.nextInt(end - start + 1) + start;
+            sampled.add(candidate);
+        }
+        return sampled;
+    }
+
   @AbstractCustomGlobal.CustomButton(buttonText = "Build Graph", toolTipText = "Builds the graph")
-  public void sampleButton() {
+  public void buildGraphButton() {
     int numNodes = Integer.parseInt(Tools.showQueryDialog("Number of nodes:"));
     buildGraph(numNodes);
+  }
+
+  @AbstractCustomGlobal.CustomButton(buttonText = "Toggle Weights", toolTipText = "Toggle visibility of the edges' weights.")
+  public void toggleWeightsButton() {
+    showWeights = !showWeights;
+    Tools.repaintGUI();
   }
 
   // a vector of all non-leaf nodes
@@ -61,12 +73,13 @@ public class CustomGlobal extends AbstractCustomGlobal {
     }
     Runtime.clearAllNodes();
     nodes.clear();
-    GraphNode.smallIdCounter = 0;
+    GraphNode.nodeIdCounter = 0;
     double angle, distance = 0;
     double posX, posY = 0;
     double radius = (double) Math.min(Configuration.dimX, Configuration.dimY) / 2.1;
     UniformDistribution uniform = new UniformDistribution(0, 1);
     GraphNode gn;
+    // Generate graph vertices.
     for (int i = 0; i < numNodes; i++) {
       angle = uniform.nextSample() * 2 * Math.PI;
       distance = Math.sqrt(uniform.nextSample()) * radius;
@@ -77,8 +90,14 @@ public class CustomGlobal extends AbstractCustomGlobal {
       nodes.add(gn);
       gn.setPosition(posX, posY, 0);
     }
-
-
+    // Generate graph edges.
+    for (int i = 0; i < numNodes; i++) {
+      Set<Integer> neighbors = sampleIntegersInRange(0, numNodes-1, 3);
+      for (int neigh : neighbors) {
+        randomEdgeWeight = rand.nextInt(1000000000 - 1) + 1;
+        nodes.get(i).addConnectionTo(nodes.get(neigh));
+      }
+    }
     Tools.repaintGUI();
   }
 }

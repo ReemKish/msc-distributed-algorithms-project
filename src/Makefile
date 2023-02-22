@@ -1,6 +1,6 @@
 PROJECT = centralized_computing
-CLASSPATH = /opt/sinalgo/binaries/bin:/opt/sinalgo/binaries/jdom.jar
 SINALGO_DIRECTORY = /opt/sinalgo
+CLASSPATH = $(SINALGO_DIRECTORY)/binaries/bin:$(SINALGO_DIRECTORY)/binaries/jdom.jar
 SOURCES = $(shell find $(PROJECT) -name '*.java')
 TARGET_DIRECTORY = $(SINALGO_DIRECTORY)/binaries/bin
 
