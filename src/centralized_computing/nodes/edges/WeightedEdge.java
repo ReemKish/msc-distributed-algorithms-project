@@ -4,6 +4,7 @@ import projects.centralized_computing.CustomGlobal;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.Random;
 
 import sinalgo.configuration.Configuration;
 import sinalgo.configuration.CorruptConfigurationEntryException;
@@ -15,22 +16,23 @@ import sinalgo.nodes.Position;
 import sinalgo.nodes.edges.BidirectionalEdge;
 import sinalgo.tools.Tools;
 
-/**
- * This edge draws itself bold whenever it is traversed by a message.
- * <p>
- * This edge requires a configuration file entry that specifies the stroke
- * width at which this edge draws itself. The entry has the following form:
- * <p>
- * &lt;BigEdge strokeWidth="..."&gt;
- */
 public class WeightedEdge extends BidirectionalEdge {
-	int strokeWidth;
+  static final int BILLION = 1000000000;
+  private static Random rand = sinalgo.tools.Tools.getRandomNumberGenerator(); 
+  private static int currWeight = rand.nextInt(BILLION) + 1;
+
   int weight;
   boolean show;
 
 	public WeightedEdge() {
-    strokeWidth = 20;
-    weight = CustomGlobal.randomEdgeWeight;
+    // Very hacky way to ensure bidirectional edges have same weight on each direction.
+    if (currWeight > BILLION) {
+      weight = currWeight - BILLION;
+      currWeight = rand.nextInt(BILLION) + 1;
+    } else {
+      weight = currWeight;
+      currWeight += BILLION;
+    }
 	}
 
 	public void draw(Graphics g, PositionTransformation pt) {
@@ -54,7 +56,7 @@ public class WeightedEdge extends BidirectionalEdge {
 			if(numberOfMessagesOnThisEdge > 0) {
 				Arrow.drawArrow(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
 				g.setColor(getColor());
-				GraphPanel.drawBoldLine(g, fromX, fromY, pt.guiX, pt.guiY, strokeWidth);
+				GraphPanel.drawBoldLine(g, fromX, fromY, pt.guiX, pt.guiY, 2);
 			} else {
 				Arrow.drawArrow(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
 			}
