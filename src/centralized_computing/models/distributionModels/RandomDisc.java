@@ -3,7 +3,6 @@ package projects.centralized_computing.models.distributionModels;
 import sinalgo.configuration.Configuration;
 import sinalgo.models.DistributionModel;
 import sinalgo.nodes.Position;
-import sinalgo.runtime.Main;
 import sinalgo.tools.statistics.UniformDistribution;
 
 public class RandomDisc extends DistributionModel {
