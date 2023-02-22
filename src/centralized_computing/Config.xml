@@ -41,14 +41,14 @@
 		<extendedControl value="true" />
 
 		<!--If true, the graph edges are drawn as directed arrows,  otherwise simple lines.-->
-		<drawArrows value="true" />
+		<drawArrows value="false" />
 		<zoomStep value="1.2" />
 		<wheelZoomStep value="1.05" />
 		<minZoomFactor value="0.02" />
 
 		<!--  Models                                                               -->
 		<DefaultMessageTransmissionModel value="ConstantTime" />
-		<DefaultConnectivityModel value="StaticConnectivity" />
+		<DefaultConnectivityModel value="centralized_computing:StaticRandomConnectivity" />
 		<DefaultDistributionModel value="centralized_computing:RandomDisc" />
 		<DefaultInterferenceModel value="NoInterference" />
 		<DefaultMobilityModel value="NoMobility" />
@@ -68,15 +68,15 @@
 		<drawNodes value="true" />
 		<shownEventQueueSize value="10" />
 		<outputTextFieldHeight value="200" />
-		<arrowLength value="15" />
-		<arrowWidth value="3" />
+		<arrowLength value="10" />
+		<arrowWidth value="2" />
 		<defaultRoundNumber value="1" />
 
 	</Framework>
 	<Custom>
 <MessageTransmission ConstantTime="1"/>
 	
-<Node defaultSize="10" />
+<Node defaultSize="4" />
 <GeometricNodeCollection rMax="1000000"/>
 				</Custom>
 
