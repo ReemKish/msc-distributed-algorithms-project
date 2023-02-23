@@ -2,13 +2,12 @@ package projects.centralized_computing.nodes.nodeImplementations;
 
 import java.awt.Color;
 
-import projects.centralized_computing.nodes.messages.ColorMessage;
-import projects.centralized_computing.nodes.messages.GroupMessage;
-package projects.centralized_computing.nodes.edges;
+import projects.centralized_computing.nodes.edges.WeightedEdge;
 import projects.centralized_computing.CustomGlobal;
 
 import sinalgo.configuration.WrongConfigurationException;
 import sinalgo.nodes.Node;
+import sinalgo.nodes.edges.Edge;
 import sinalgo.nodes.messages.Inbox;
 import sinalgo.nodes.messages.Message;
 
@@ -36,8 +35,7 @@ public class GraphNode extends Node {
 	
 	@Override
 	public void handleMessages(Inbox inbox) {
-    for (WeightedEdge connn : this.outgoingConnections) {
-      edge.endNode;
+    for (Edge edge : this.outgoingConnections) {
       
     }
 

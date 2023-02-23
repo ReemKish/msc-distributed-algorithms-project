@@ -41,7 +41,7 @@
 		<extendedControl value="true" />
 
 		<!--If true, the graph edges are drawn as directed arrows,  otherwise simple lines.-->
-		<drawArrows value="false" />
+		<drawArrows value="true" />
 		<zoomStep value="1.2" />
 		<wheelZoomStep value="1.05" />
 		<minZoomFactor value="0.02" />
@@ -57,7 +57,7 @@
 		<showModelsOfAllProjects value="false" />
 
 		<!--  Animation Settings                                                   -->
-		<showMessageAnimations value="true" />
+		<showMessageAnimations value="false" />
 		<messageAnimationEnvelopeWidth value="30.0" />
 		<messageAnimationEnvelopeHeight value="20.0" />
 		<messageAnimationEnvelopeColor value="r=255,g=255,b=0" />
@@ -76,7 +76,7 @@
 	<Custom>
 <MessageTransmission ConstantTime="1"/>
 	
-<Node defaultSize="4" />
+<Node defaultSize="3" />
 <GeometricNodeCollection rMax="1000000"/>
 				</Custom>
 
