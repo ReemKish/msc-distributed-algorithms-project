@@ -1,6 +1,7 @@
 package projects.centralized_computing.nodes.edges;
 
 import projects.centralized_computing.CustomGlobal;
+import projects.centralized_computing.nodes.nodeImplementations.GraphNode;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -13,6 +14,7 @@ import sinalgo.gui.helper.Arrow;
 import sinalgo.gui.transformation.PositionTransformation;
 import sinalgo.io.eps.EPSOutputPrintStream;
 import sinalgo.nodes.Position;
+import sinalgo.nodes.Node;
 import sinalgo.nodes.edges.BidirectionalEdge;
 import sinalgo.tools.Tools;
 
@@ -21,8 +23,10 @@ public class WeightedEdge extends BidirectionalEdge {
   private static Random rand = sinalgo.tools.Tools.getRandomNumberGenerator(); 
   private static int currWeight = rand.nextInt(BILLION) + 1;
 
-  int weight;
-  boolean show;
+  private boolean show;
+  public int weight;
+  public GraphNode startNode;
+  public GraphNode endNode;
 
 	public WeightedEdge() {
     // Very hacky way to ensure bidirectional edges have same weight on each direction.
@@ -35,37 +39,55 @@ public class WeightedEdge extends BidirectionalEdge {
     }
 	}
 
+	public void initializeEdge() {
+    startNode = (GraphNode) super.startNode;
+    endNode = (GraphNode) super.endNode;
+	}
+
 	public void draw(Graphics g, PositionTransformation pt) {
 		Position p1 = startNode.getPosition();
 		pt.translateToGUIPosition(p1);
-		int fromX = pt.guiX, fromY = pt.guiY; // temporarily store
+		int fromX = pt.guiX, fromY = pt.guiY;
 		Position p2 = endNode.getPosition();
 		pt.translateToGUIPosition(p2);
-		int toX = pt.guiX, toY = pt.guiY; // temporarily store
-		pt.translateToGUIPosition(p2);
-    int x = (int)(0.95*fromX + 0.05*toX);
-    int y = (int)(0.95*fromY + 0.05*toY);
-    if (CustomGlobal.showWeights) g.drawString(Integer.toString(weight), x, y);
+		int toX = pt.guiX, toY = pt.guiY;
 
-		if((this.numberOfMessagesOnThisEdge == 0)&&
-				(this.oppositeEdge != null)&&
-				(this.oppositeEdge.numberOfMessagesOnThisEdge > 0)){
-			// only draws the arrowHead (if drawArrows is true) - the line is drawn by the 'opposite' edge
-			Arrow.drawArrowHead(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
-		} else {
-			if(numberOfMessagesOnThisEdge > 0) {
-				Arrow.drawArrow(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
-				g.setColor(getColor());
-				GraphPanel.drawBoldLine(g, fromX, fromY, pt.guiX, pt.guiY, 2);
-			} else {
-				Arrow.drawArrow(fromX, fromY, pt.guiX, pt.guiY, g, pt, getColor());
-			}
-		}
+    // Show weight label on the edge near the origin vertex.
+    if (CustomGlobal.showWeights) {
+      int weightLabelX = (int)(0.95*fromX + 0.05*toX);
+      int weightLableY = (int)(0.95*fromY + 0.05*toY);
+      g.drawString(Integer.toString(weight), weightLabelX, weightLableY);
+    }
+
+    // System.out.println(startNode + " " + endNode);
+    if(startNode.isParentOf(endNode))
+		  Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
+    else if (!endNode.isParentOf(startNode)) {
+      g.setColor(Color.lightGray);
+      g.drawLine(fromX, fromY, toX, toY);
+    }
+		  // GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 3);
+    // g.drawLine(fromX, fromY, toX, toY);
+		// g.setColor(getColor());
+		// GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 2);
+		// Arrow.drawArrowHead(fromX, fromY, toX, toY, g, pt, getColor());
+		// Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
+		// if((this.numberOfMessagesOnThisEdge == 0)&&
+		// 		(this.oppositeEdge != null)&&
+		// 		(this.oppositeEdge.numberOfMessagesOnThisEdge > 0)){
+		// 	// only draws the arrowHead (if drawArrows is true) - the line is drawn by the 'opposite' edge
+		// 	Arrow.drawArrowHead(fromX, fromY, toX, toY, g, pt, getColor());
+		// } else {
+		// 	if(numberOfMessagesOnThisEdge > 0) {
+		// 		// Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
+		// 	} else {
+		// 		// Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
+		// 	}
+		// }
 	}
 
   public String toString() {
     return "Weight: " + weight;
-
   }
 
   public Color getColor() {
