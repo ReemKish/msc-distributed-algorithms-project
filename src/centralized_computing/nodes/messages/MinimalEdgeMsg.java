@@ -3,9 +3,9 @@ package projects.centralized_computing.nodes.messages;
 import sinalgo.nodes.messages.Message;
 
 public class MinimalEdgeMsg extends Message {
-  int edge;
+  int weight;
 
-	public MinimalEdgeMsg(int edge) { this.edge = edge; }
+	public MinimalEdgeMsg(int weight) { this.weight = weight; }
 
 	@Override
 	public Message clone() { return this; }
