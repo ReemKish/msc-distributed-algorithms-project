@@ -14,11 +14,11 @@ public class RandomConnectivity extends ConnectivityModel {
 
 	public boolean updateConnections(Node n) {
     NodeCollectionInterface nodeCollection = Runtime.nodes;
-    int numNodesToConnect = 1;
+    int numNodesToConnect = 7;
     while (numNodesToConnect > 0) {
       Node candidNode = nodeCollection.getRandomNode();
       if (!candidNode.equals(n))
-        numNodesToConnect -= n.outgoingConnections.add(n, candidNode, true) ? 0 : 1;
+        numNodesToConnect -= n.outgoingConnections.add(n, candidNode, true) ? 1 : 1;
     }
 	  return true;
 	}
