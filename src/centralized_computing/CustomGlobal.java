@@ -1,5 +1,7 @@
 package projects.centralized_computing;
 
+import projects.centralized_computing.nodes.nodeImplementations.GraphNode;
+
 import sinalgo.runtime.AbstractCustomGlobal;
 import sinalgo.tools.Tools;
 import sinalgo.runtime.Runtime;
@@ -30,13 +32,13 @@ public class CustomGlobal extends AbstractCustomGlobal {
   public void updatePhaseState() {
     int n = getNumNodes();
     int step = (round - 1) % (4*n + 2);
-    this.phase = (round - 1) / (4*n+2);
-    if(step == 0) { this.state = State.getMWOE; }
-    else if(0 < step && step <= 1*n) { this.state = State.convergecastMWOE; }
-    else if(n < step && step <= 2*n) { this.state = State.broadcastMWOE; }
-    else if(2*n < step && step <= 3*n) { this.state = State.replaceLeader; }
-    else if(step == 3*n+1) { this.state = State.connectFragments; }
-    else if(3*n+1 < step && step <= 4*n+1) { this.state = State.updateFragID; }
+    phase = (round - 1) / (4*n+2);
+    if(step == 0) { state = State.getMWOE; }
+    else if(0 < step && step <= 1*n) { state = State.convergecastMWOE; }
+    else if(n < step && step <= 2*n) { state = State.broadcastMWOE; }
+    else if(2*n < step && step <= 3*n) { state = State.replaceLeader; }
+    else if(step == 3*n+1) { state = State.connectFragments; }
+    else if(3*n+1 < step && step <= 4*n+1) { state = State.updateFragID; }
 
   }
 
@@ -45,7 +47,7 @@ public class CustomGlobal extends AbstractCustomGlobal {
   }
 
   public void preRound() {
-    updatePhaseState();
+    if(round > getNumNodes()) updatePhaseState();
     System.out.println("========== Round " + round + "==========");
     System.out.println("Phase: " + phase + ", State: " + state);
   }
@@ -60,6 +62,15 @@ public class CustomGlobal extends AbstractCustomGlobal {
     return 1 + logStar(Math.log(x) / Math.log(2));
   }
 
+
+	@CustomButton(imageName="Node.gif", toolTipText="Clear the nodes' labels.")
+  public void setNodeLabelNone() { GraphNode.setLabelNone(); }
+
+	@CustomButton(imageName="NodeWithID.gif", toolTipText="Set the nodes' labels to their IDs.")
+  public void setNodeLabelID() { GraphNode.setLabelID(); }
+
+	@CustomButton(imageName="NodeWithFragID.gif", toolTipText="Set the nodes' labels to their Fragment IDs.")
+  public void setNodeLabelFragID() { GraphNode.setLabelFragID(); }
 
   @AbstractCustomGlobal.CustomButton(buttonText = "Toggle Weights", toolTipText = "Toggle visibility of the edges' weights.")
   public void toggleWeightsButton() {
