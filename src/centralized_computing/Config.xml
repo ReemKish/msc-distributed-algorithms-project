@@ -5,8 +5,8 @@
 
 		<!--  Simulation Area                                                      -->
 		<dimensions value="2" />
-		<dimX value="500" />
-		<dimY value="500" />
+		<dimX value="300" />
+		<dimY value="300" />
 		<dimZ value="0" />
 
 		<!--  Simulation                                                           -->
@@ -76,7 +76,7 @@
 	<Custom>
 <MessageTransmission ConstantTime="1"/>
 	
-<Node defaultSize="3" />
+<Node defaultSize="7" />
 <GeometricNodeCollection rMax="1000000"/>
 				</Custom>
 
