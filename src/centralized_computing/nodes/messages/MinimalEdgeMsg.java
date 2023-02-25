@@ -3,7 +3,7 @@ package projects.centralized_computing.nodes.messages;
 import sinalgo.nodes.messages.Message;
 
 public class MinimalEdgeMsg extends Message {
-  int weight;
+  public int weight;
 
 	public MinimalEdgeMsg(int weight) { this.weight = weight; }
 
