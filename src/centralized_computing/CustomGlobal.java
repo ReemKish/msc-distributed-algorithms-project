@@ -31,8 +31,8 @@ public class CustomGlobal extends AbstractCustomGlobal {
 
   public void updatePhaseState() {
     int n = getNumNodes();
-    int step = (round - 1) % (4*n + 2);
-    phase = (round - 1) / (4*n+2);
+    int step = (round - n - 1) % (4*n + 2);
+    phase = 1 + (round - n - 1) / (4*n+2);
     if(step == 0) { state = State.getMWOE; }
     else if(0 < step && step <= 1*n) { state = State.convergecastMWOE; }
     else if(n < step && step <= 2*n) { state = State.broadcastMWOE; }
