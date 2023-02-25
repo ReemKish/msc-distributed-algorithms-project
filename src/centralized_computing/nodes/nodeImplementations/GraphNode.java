@@ -113,6 +113,10 @@ public class GraphNode extends Node {
   public void sendToChildren(Message m)
     { for (Node child : children) send(m, child); }
 
+  public void sendToParent(Message m)
+    { System.out.println(ID + " sent to " + parent.ID);
+    send(m, parent); }
+
   public void handleInitialPhase() {
     // On the 1st round, find the mwoe and connect to parent.
     if(CustomGlobal.round == 1) {
@@ -125,15 +129,18 @@ public class GraphNode extends Node {
       while(inbox.hasNext()) {
         ConnectMsg msg = (ConnectMsg) inbox.next();
         GraphNode sender = (GraphNode) inbox.getSender();
+        if (sender.equals(parent)) {
+          if (ID > parent.ID) {
+            this.amRoot = true;
+          } else continue;
+        }
         this.children.add(sender);
       }
-      this.amRoot = children.contains(parent) && ID > parent.ID;
       if(amRoot) sendToChildren(new FragmentIdMsg(ID));
     }
     else {  // On subsequent rounds, forward the fragment id.
       if (!amRoot) {
         while(inbox.hasNext()) {
-          System.out.println(ID);
           Message msg = inbox.next();
           GraphNode sender = (GraphNode) inbox.getSender();
           if(msg instanceof FragmentIdMsg) {
@@ -143,19 +150,30 @@ public class GraphNode extends Node {
         }
       }
     }
-
   }
 
   public void handleStateGetMWOE() {
     calcMWOE();
+    if (mwoe != null)
+      send(new MinimalEdgeMsg(mwoe), parent);
   }
 
   public void handleStateConvergecastMWOE() {
-    ;
+    while(inbox.hasNext()) {
+      WeightedEdge recv_mwoe = ((MinimalEdgeMsg) inbox.next()).mwoe;
+      if(mwoe == null || mwoe.weight > recv_mwoe.weight)
+        this.mwoe = recv_mwoe;
+    }
+    if(!amRoot) sendToParent(new MinimalEdgeMsg(mwoe));
   }
 
   public void handleStateBroadcastMWOE() {
-    ;
+    if(amRoot) sendToChildren(new MinimalEdgeMsg(mwoe));
+    if(inbox.hasNext()) {
+      MinimalEdgeMsg msg = (MinimalEdgeMsg)inbox.next();
+      mwoe = msg.mwoe;
+      sendToChildren(msg);
+    }
   }
 
   public void handleStateReplaceLeader() {
@@ -214,7 +232,7 @@ public class GraphNode extends Node {
   public String toString() {
     Set<Integer> childrenIDs = new HashSet();
     for (Node child : children) childrenIDs.add(child.ID);
-    return String.format("GraphNode(ID=%d,fragID=%d,amRoot=%b,parentID=%d,childrenIDs=%s)", ID, fragID, amRoot, parent.ID, childrenIDs.toString());
+    return String.format("GraphNode(ID=%d,fragID=%d,amRoot=%b,parentID=%d,childrenIDs=%s,mwoe=%s)", ID, fragID, amRoot, parent.ID, childrenIDs.toString(), mwoe.toString());
   }
 
 
