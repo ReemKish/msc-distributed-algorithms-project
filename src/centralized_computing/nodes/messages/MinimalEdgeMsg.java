@@ -4,9 +4,9 @@ import projects.centralized_computing.nodes.edges.WeightedEdge;
 import sinalgo.nodes.messages.Message;
 
 public class MinimalEdgeMsg extends Message {
-  public WeightedEdge mwoe;
+  public int minWeight;
 
-	public MinimalEdgeMsg(WeightedEdge mwoe) { this.mwoe = mwoe; }
+	public MinimalEdgeMsg(int minWeight) { this.minWeight = minWeight; }
 
 	@Override
 	public Message clone() { return this; }
