@@ -29,6 +29,8 @@ public class GraphNode extends Node {
 
 	public static int nodeIdCounter = 0;
 	public static Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.CYAN, Color.MAGENTA};
+  public static GraphNode server = null;
+  public static boolean serverReady = false;
   private static Label label = Label.None;
 
   public int fragID;
@@ -36,6 +38,7 @@ public class GraphNode extends Node {
   public Set<GraphNode> children = new HashSet();
   public int minWeight = Integer.MAX_VALUE;
   public boolean amRoot = false;
+  public boolean isServer = false;
 
 	public GraphNode() {
     fragID = ID;
@@ -107,6 +110,9 @@ public class GraphNode extends Node {
         break;
       case updateFragID:
         handleStateUpdateFragID();
+        break;
+      case finished:
+        handleStateFinished();
         break;
     }
   }
@@ -251,16 +257,43 @@ public class GraphNode extends Node {
       sendToChildren(new FragmentIdMsg(fragID));
   }
 
+
+  public void handleStateFinished() {
+    if(server == null) return;
+    if (!serverReady) {
+      if(server.parent != null) {
+        server.sendToParent(new InvertEdgeMsg());
+        server.children.add(server.parent);
+        server.parent = null;
+      }
+      while(inbox.hasNext()) {
+        InvertEdgeMsg msg = (InvertEdgeMsg) inbox.next();
+        GraphNode sender = (GraphNode) inbox.getSender();
+        if (parent != null) {
+          sendToParent(msg);
+          this.children.add(parent);
+        } else serverReady = true;
+        this.children.remove(sender);
+        this.parent = sender;
+      }
+    }
+  }
+
 	public void draw(Graphics g, PositionTransformation pt, boolean highlight){
-    Color fragColor = getBrightColor(fragID);
-    if(amRoot) {
-      setColor(setColorAlpha(fragColor, .2f));
+    // if the state is finished, draw the node black
+    Color fragColor =  getBrightColor(fragID);
+    Color color;
+    if (CustomGlobal.state == State.finished)
+      color = isServer ? Color.red : getBrightColor(1);
+    else color = fragColor;
+    if((CustomGlobal.state != State.finished && amRoot) || (CustomGlobal.state == State.finished && isServer)) {
+      setColor(setColorAlpha(color, .2f));
       drawNodeAsDiskWithText(g, pt, highlight, "", (int)(defaultDrawingSizeInPixels*3), Color.white);
-      setColor(setColorAlpha(fragColor, .4f));
+      setColor(setColorAlpha(color, .4f));
       drawNodeAsDiskWithText(g, pt, highlight, "", (int)(defaultDrawingSizeInPixels*2), Color.white);
     }
     // setColor(Color.gray);
-    setColor(fragColor);
+    setColor(color);
     switch (label) {
       case NodeID:
         drawNodeAsDiskWithText(g, pt, false, Integer.toString(ID), defaultDrawingSizeInPixels, Color.white);
@@ -271,7 +304,7 @@ public class GraphNode extends Node {
       case None:
         drawNodeAsDiskWithText(g, pt, false, "", defaultDrawingSizeInPixels, Color.white);
     }
-	}
+  }
 
 
   public static Color getBrightColor(int number) {
@@ -295,6 +328,15 @@ public class GraphNode extends Node {
     Set<Integer> childrenIDs = new HashSet();
     for (Node child : children) childrenIDs.add(child.ID);
     return String.format("GraphNode(ID=%d,fragID=%d,amRoot=%b,parentID=%d,childrenIDs=%s,minWeight=%d)", ID, fragID, amRoot, parent != null ? parent.ID : -1, childrenIDs.toString(), minWeight);
+  }
+
+
+	@NodePopupMethod(menuText = "Set as Server")
+  public void setAsServer() {
+    if (server != null) server.isServer = false;
+    server = this;
+    serverReady = false;
+    this.isServer = true;
   }
 
 

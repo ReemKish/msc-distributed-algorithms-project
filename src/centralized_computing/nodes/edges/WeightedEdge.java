@@ -1,5 +1,6 @@
 package projects.centralized_computing.nodes.edges;
 import projects.centralized_computing.CustomGlobal;
+import projects.centralized_computing.CustomGlobal.State;
 import projects.centralized_computing.nodes.nodeImplementations.GraphNode;
 
 import java.awt.Color;
@@ -90,7 +91,7 @@ public class WeightedEdge extends BidirectionalEdge {
   public Color getColor() {
     Color color;
     if(startNode.fragID == endNode.fragID) {  // Intrafragment edge.
-      color = startNode.getColor();
+      color = CustomGlobal.state == State.finished ? Color.black : startNode.getColor();
       color = setColorAlpha(color, startNode.isRelatedTo(endNode) ? 1.0f : 0.2f);
     } else {  // Interfragment edge.
       color = setColorAlpha(Color.GRAY, 0.2f);

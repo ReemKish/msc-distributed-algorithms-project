@@ -4,6 +4,7 @@ import projects.centralized_computing.nodes.nodeImplementations.GraphNode;
 
 import sinalgo.runtime.AbstractCustomGlobal;
 import sinalgo.tools.Tools;
+import sinalgo.nodes.Node;
 import sinalgo.runtime.Runtime;
 
 
@@ -17,7 +18,8 @@ public class CustomGlobal extends AbstractCustomGlobal {
       broadcastMWOE,
       replaceLeader,
       connectFragments,
-      updateFragID
+      updateFragID,
+      finished
   }
 
   public static boolean showWeights = false;
@@ -26,7 +28,9 @@ public class CustomGlobal extends AbstractCustomGlobal {
   public static int round = 1;
 
   public boolean hasTerminated() {
-    return phase >= Math.log(getNumNodes()) / Math.log(2);
+    boolean algoTerminated = phase >= Math.log(getNumNodes()) / Math.log(2);
+    if (!algoTerminated || !GraphNode.serverReady) return false;
+    return true;
   }
 
   public void updatePhaseState() {
@@ -45,10 +49,24 @@ public class CustomGlobal extends AbstractCustomGlobal {
     return Runtime.nodes.size();
   }
 
+  public boolean isFinished() {
+    // Returns whether the algorithm is finished, i.e. - when all nodes have the same fragment ID
+    int fragID = -1;
+    for(Node n : Tools.getNodeList()) {
+      GraphNode node = (GraphNode) n;
+      if(fragID == -1) fragID = node.fragID;
+      else if(fragID != node.fragID) return false;
+    }
+    return true;
+  }
+
   public void preRound() {
     if(round > getNumNodes()) updatePhaseState();
-    // System.out.println("========== Round " + round + " ==========");
-    // if(phase>0) System.out.println("Phase: " + phase + ", State: " + state);
+    if(isFinished()) state = State.finished;
+    else {
+      System.out.println("========== Round " + round + " ==========");
+      if(phase>0) System.out.println("Phase: " + phase + ", State: " + state);
+    }
   }
 
   public void postRound() {
