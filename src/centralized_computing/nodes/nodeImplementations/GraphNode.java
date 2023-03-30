@@ -34,8 +34,8 @@ public class GraphNode extends Node {
   public int fragID;
   public GraphNode parent;
   public Set<GraphNode> children = new HashSet();
-  public WeightedEdge mwoe;
-  public boolean amRoot;
+  public int minWeight = Integer.MAX_VALUE;
+  public boolean amRoot = false;
 
 	public GraphNode() {
     fragID = ID;
@@ -68,16 +68,17 @@ public class GraphNode extends Node {
 	}
 
 
-  public void calcMWOE() {
+  public WeightedEdge calcMWOE() {
     int minW = Integer.MAX_VALUE;
-    this.mwoe = null;
+    WeightedEdge mwoe = null;
     for (Edge edge_ : outgoingConnections) {
       WeightedEdge edge = (WeightedEdge) edge_;
       if (edge.weight < minW && edge.endNode.fragID != fragID) {
         minW = edge.weight;
-        this.mwoe = edge;
+        mwoe = edge;
       }
     }
+    return mwoe;
   }
   
 	
@@ -114,14 +115,12 @@ public class GraphNode extends Node {
     { for (Node child : children) send(m, child); }
 
   public void sendToParent(Message m)
-    { System.out.println(ID + " sent to " + parent.ID);
-    send(m, parent); }
+    { if(parent != null) send(m, parent); }
 
   public void handleInitialPhase() {
     // On the 1st round, find the mwoe and connect to parent.
     if(CustomGlobal.round == 1) {
-      calcMWOE();
-      this.parent = mwoe.endNode;
+      this.parent = calcMWOE().endNode;
       send(new ConnectMsg(), parent);
     }
     // On the 2nd round, recognize children and find out if am root.
@@ -132,6 +131,7 @@ public class GraphNode extends Node {
         if (sender.equals(parent)) {
           if (ID > parent.ID) {
             this.amRoot = true;
+            this.parent = null;
           } else continue;
         }
         this.children.add(sender);
@@ -141,52 +141,114 @@ public class GraphNode extends Node {
     else {  // On subsequent rounds, forward the fragment id.
       if (!amRoot) {
         while(inbox.hasNext()) {
-          Message msg = inbox.next();
-          GraphNode sender = (GraphNode) inbox.getSender();
-          if(msg instanceof FragmentIdMsg) {
-            this.fragID = ((FragmentIdMsg) msg).fragID;
-            sendToChildren(new FragmentIdMsg(fragID));
-          }
+          FragmentIdMsg msg = (FragmentIdMsg) inbox.next();
+          this.fragID = msg.fragID;
+          sendToChildren(msg);
         }
       }
     }
   }
 
   public void handleStateGetMWOE() {
-    calcMWOE();
-    if (mwoe != null)
-      send(new MinimalEdgeMsg(mwoe), parent);
+    this.minWeight = Integer.MAX_VALUE;
+    WeightedEdge mwoe = calcMWOE();
+    if (mwoe != null) {
+      this.minWeight = mwoe.weight;
+      sendToParent(new MinimalEdgeMsg(minWeight));
+    }
   }
 
   public void handleStateConvergecastMWOE() {
+    int minW = this.minWeight;
     while(inbox.hasNext()) {
-      WeightedEdge recv_mwoe = ((MinimalEdgeMsg) inbox.next()).mwoe;
-      if(mwoe == null || mwoe.weight > recv_mwoe.weight)
-        this.mwoe = recv_mwoe;
+      int weight = ((MinimalEdgeMsg) inbox.next()).weight;
+      minW = weight > minW ? minW : weight;
     }
-    if(!amRoot) sendToParent(new MinimalEdgeMsg(mwoe));
+    if(amRoot) this.minWeight = minW;
+    else sendToParent(new MinimalEdgeMsg(minW));
   }
 
   public void handleStateBroadcastMWOE() {
-    if(amRoot) sendToChildren(new MinimalEdgeMsg(mwoe));
+    if(amRoot) {
+      sendToChildren(new MinimalEdgeMsg(minWeight));
+      // System.out.println("Root " + ID + " sent minWieght " + minWeight + " to children.");
+      WeightedEdge mwoe = calcMWOE();
+      if (mwoe == null || mwoe.weight > minWeight) {
+        this.amRoot = false;
+        this.parent = null;
+        // System.out.println("Root " + ID + " is no longer root.");
+        this.minWeight = mwoe == null ? Integer.MAX_VALUE : mwoe.weight;
+      }
+    }
     if(inbox.hasNext()) {
       MinimalEdgeMsg msg = (MinimalEdgeMsg)inbox.next();
-      mwoe = msg.mwoe;
-      sendToChildren(msg);
+      GraphNode sender = (GraphNode) inbox.getSender();
+      // System.out.println(ID + " Received minWeight " + msg.weight + " from " + sender.ID + ", minWeight=" + minWeight);
+      if (sender.equals(parent)) {
+        if (minWeight == msg.weight && minWeight != Integer.MAX_VALUE) {
+          amRoot = true;
+          // System.out.println("Root " + ID + " is now root.");
+        }
+        sendToChildren(msg);
+      }
     }
   }
 
   public void handleStateReplaceLeader() {
-    ;
+    if(amRoot && parent != null) {
+      sendToParent(new ConnectMsg());
+      children.add(parent);
+      this.parent = null;
+    }
+    while(inbox.hasNext()) {
+      Message msg = inbox.next();
+      GraphNode sender = (GraphNode) inbox.getSender();
+      if (msg instanceof ConnectMsg)  {
+        if(parent != null) {
+          sendToParent(new ConnectMsg());
+          children.add(parent);
+        }
+        children.remove(sender);
+        this.parent = sender;
+      }
+    }
   }
 
   public void handleStateConnectFragments() {
-    ;
+    if (amRoot) {
+      WeightedEdge mwoe = calcMWOE();
+      if (mwoe != null) {
+        this.parent = mwoe.endNode;
+        sendToParent(new ConnectMsg());
+      }
+    }
+    this.amRoot = false;
   }
 
 
   public void handleStateUpdateFragID() {
-    ;
+    boolean becameRoot = false;
+    while(inbox.hasNext()) {
+      Message msg = inbox.next();
+      GraphNode sender = (GraphNode) inbox.getSender();
+      if (msg instanceof ConnectMsg) {
+        // System.out.println("Got ConnectMsg");
+        if (sender.equals(parent)) {
+          if (fragID > parent.fragID) {
+            this.amRoot = true;
+            this.parent = null;
+            becameRoot = true;
+          } else continue;
+        }
+        this.children.add(sender);
+      } else if (msg instanceof FragmentIdMsg) {
+        // System.out.println(ID);
+        this.fragID = ((FragmentIdMsg)msg).fragID;
+        sendToChildren(msg);
+      }
+    }
+    if (becameRoot)
+      sendToChildren(new FragmentIdMsg(fragID));
   }
 
 	public void draw(Graphics g, PositionTransformation pt, boolean highlight){
@@ -232,7 +294,7 @@ public class GraphNode extends Node {
   public String toString() {
     Set<Integer> childrenIDs = new HashSet();
     for (Node child : children) childrenIDs.add(child.ID);
-    return String.format("GraphNode(ID=%d,fragID=%d,amRoot=%b,parentID=%d,childrenIDs=%s,mwoe=%s)", ID, fragID, amRoot, parent.ID, childrenIDs.toString(), mwoe.toString());
+    return String.format("GraphNode(ID=%d,fragID=%d,amRoot=%b,parentID=%d,childrenIDs=%s,minWeight=%d)", ID, fragID, amRoot, parent != null ? parent.ID : -1, childrenIDs.toString(), minWeight);
   }
 
 

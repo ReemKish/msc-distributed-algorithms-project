@@ -19,7 +19,7 @@
 		<edgeType value="centralized_computing:WeightedEdge" />
 		<exitOnTerminationInGUI value="false" />
 		<initializeConnectionsOnStartup value="false" />
-		<refreshRate value="1" />
+		<refreshRate value="50" />
 		<generateNAckMessages value="false" />
 		<handleEmptyEventQueue value="true" />
 		<javaCmd value="java" />
@@ -28,7 +28,7 @@
 		<!--  Random number generators                                             -->
 		<useSameSeedAsInPreviousRun value="false" />
 		<useFixedSeed value="false" />
-		<fixedSeed value="777" />
+		<fixedSeed value="-948630805193471517" />
 
 		<!--  Logging                                                              -->
 		<logFileName value="logfile.txt" />

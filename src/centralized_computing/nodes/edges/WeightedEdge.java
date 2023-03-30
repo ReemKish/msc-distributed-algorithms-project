@@ -23,7 +23,7 @@ import sinalgo.nodes.edges.BidirectionalEdge;
 import sinalgo.tools.Tools;
 
 public class WeightedEdge extends BidirectionalEdge {
-  static final int BILLION = 100;
+  static final int BILLION = 1000000000;
   private static Random rand = sinalgo.tools.Tools.getRandomNumberGenerator(); 
   private static Map<Set<Integer>, Integer> edgeWeights = new HashMap();
 
@@ -65,33 +65,13 @@ public class WeightedEdge extends BidirectionalEdge {
 
     // System.out.println(startNode + " " + endNode);
 		g.setColor(getColor());
-    if(endNode.isParentOf(startNode) && startNode.isParentOf(endNode)) {
-		  GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 3);
+    if(endNode.isParentOf(startNode)) {
+		  GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 2);
 		  Arrow.drawArrowHead(fromX, fromY, toX, toY, g, pt, getColor());
     }
-    else if(endNode.isParentOf(startNode))
-		  Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
     else if(!startNode.isParentOf(endNode)) {
       g.drawLine(fromX, fromY, toX, toY);
     }
-		  // GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 3);
-    // g.drawLine(fromX, fromY, toX, toY);
-		// g.setColor(getColor());
-		// GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 2);
-		// Arrow.drawArrowHead(fromX, fromY, toX, toY, g, pt, getColor());
-		// Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
-		// if((this.numberOfMessagesOnThisEdge == 0)&&
-		// 		(this.oppositeEdge != null)&&
-		// 		(this.oppositeEdge.numberOfMessagesOnThisEdge > 0)){
-		// 	// only draws the arrowHead (if drawArrows is true) - the line is drawn by the 'opposite' edge
-		// 	Arrow.drawArrowHead(fromX, fromY, toX, toY, g, pt, getColor());
-		// } else {
-		// 	if(numberOfMessagesOnThisEdge > 0) {
-		// 		// Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
-		// 	} else {
-		// 		// Arrow.drawArrow(fromX, fromY, toX, toY, g, pt, getColor());
-		// 	}
-		// }
 	}
 
 
@@ -111,7 +91,7 @@ public class WeightedEdge extends BidirectionalEdge {
     Color color;
     if(startNode.fragID == endNode.fragID) {  // Intrafragment edge.
       color = startNode.getColor();
-      color = setColorAlpha(color, startNode.isRelatedTo(endNode) ? 1.0f : 1.0f);
+      color = setColorAlpha(color, startNode.isRelatedTo(endNode) ? 1.0f : 0.2f);
     } else {  // Interfragment edge.
       color = setColorAlpha(Color.GRAY, 0.2f);
     }

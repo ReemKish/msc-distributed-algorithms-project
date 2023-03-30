@@ -9,4 +9,5 @@ compile: $(SOURCES)
 	@javac -cp $(CLASSPATH) -d $(TARGET_DIRECTORY) $(SOURCES)
 
 run: compile
-	sinalgo -project centralized_computing
+	sinalgo -project centralized_computing -gen 25 centralized_computing:GraphNode centralized_computing:RandomDisc -rounds 0
+	# sinalgo -project centralized_computing -gen 10 centralized_computing:graphnode random -rounds 21

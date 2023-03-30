@@ -39,7 +39,6 @@ public class CustomGlobal extends AbstractCustomGlobal {
     else if(2*n < step && step <= 3*n) { state = State.replaceLeader; }
     else if(step == 3*n+1) { state = State.connectFragments; }
     else if(3*n+1 < step && step <= 4*n+1) { state = State.updateFragID; }
-
   }
 
   public int getNumNodes() {
@@ -48,8 +47,8 @@ public class CustomGlobal extends AbstractCustomGlobal {
 
   public void preRound() {
     if(round > getNumNodes()) updatePhaseState();
-    System.out.println("========== Round " + round + "==========");
-    System.out.println("Phase: " + phase + ", State: " + state);
+    // System.out.println("========== Round " + round + " ==========");
+    // if(phase>0) System.out.println("Phase: " + phase + ", State: " + state);
   }
 
   public void postRound() {
