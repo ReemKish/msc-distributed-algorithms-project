@@ -1,5 +1,5 @@
-PROJECT = centralized_computing
 SINALGO_DIRECTORY = /opt/sinalgo
+PROJECT = centralized_computing
 CLASSPATH = $(SINALGO_DIRECTORY)/binaries/bin:$(SINALGO_DIRECTORY)/binaries/jdom.jar
 SOURCES = $(shell find $(PROJECT) -name '*.java')
 TARGET_DIRECTORY = $(SINALGO_DIRECTORY)/binaries/bin
@@ -9,5 +9,5 @@ compile: $(SOURCES)
 	@javac -cp $(CLASSPATH) -d $(TARGET_DIRECTORY) $(SOURCES)
 
 run: compile
-	sinalgo -project centralized_computing -gen 200 centralized_computing:GraphNode centralized_computing:RandomDisc -rounds 0
+	sinalgo -project centralized_computing -gen 100 centralized_computing:GraphNode centralized_computing:RandomDisc -rounds 0
 	# sinalgo -project centralized_computing -gen 10 centralized_computing:graphnode random -rounds 21
