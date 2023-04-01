@@ -14,6 +14,7 @@ Change to the `src` directory, edit the first line of the Makefile so that `SINA
 Open Sinalgo and choose "centralized_computing" from the projects list.
 Then, click on "Simulation" from the toolbar and choose "Generate Nodes". The following window will open:
 ![Nodes generation window](img/nodes-generation-window.png "Nodes generation window")
+
 Enter a number of nodes to generate, up to 500 nodes are recommended to not burden the visual panel.
 Make sure all other fields (distribution model and all node properties) are set as in the above example.
 Then, execute a single round of the simulation in order for all the node connections to be evaluated.
