@@ -66,8 +66,9 @@ public class WeightedEdge extends BidirectionalEdge {
 
     // System.out.println(startNode + " " + endNode);
 		g.setColor(getColor());
+    int strokeWidth = (CustomGlobal.state == State.finished && (numberOfMessagesOnThisEdge > 0 || oppositeEdge.numberOfMessagesOnThisEdge > 0)) ? 5 : 2;
     if(endNode.isParentOf(startNode)) {
-		  GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, 2);
+		  GraphPanel.drawBoldLine(g, fromX, fromY, toX, toY, strokeWidth);
 		  Arrow.drawArrowHead(fromX, fromY, toX, toY, g, pt, getColor());
     }
     else if(!startNode.isParentOf(endNode)) {
@@ -96,6 +97,8 @@ public class WeightedEdge extends BidirectionalEdge {
     } else {  // Interfragment edge.
       color = setColorAlpha(Color.GRAY, 0.2f);
     }
+    if(CustomGlobal.state == State.finished && (numberOfMessagesOnThisEdge > 0 || oppositeEdge.numberOfMessagesOnThisEdge > 0))
+      color = Color.red;
     return color;
     // return Color.RED;
     // return weight < 1000000000 / 5 ? Color.BLACK : Color.LIGHT_GRAY;

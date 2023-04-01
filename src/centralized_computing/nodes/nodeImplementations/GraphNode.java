@@ -4,6 +4,8 @@ import java.awt.Graphics;
 import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Arrays;
+
 
 import projects.centralized_computing.nodes.edges.WeightedEdge;
 import projects.centralized_computing.nodes.messages.*;
@@ -30,7 +32,10 @@ public class GraphNode extends Node {
 	public static int nodeIdCounter = 0;
 	public static Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.CYAN, Color.MAGENTA};
   public static GraphNode server = null;
-  public static boolean serverReady = false;
+  public static boolean serverReady = true;
+  public static boolean taskCompleted = true;
+  public static String task;
+  public static GraphNode taskSender;
   private static Label label = Label.None;
 
   public int fragID;
@@ -177,23 +182,19 @@ public class GraphNode extends Node {
   public void handleStateBroadcastMWOE() {
     if(amRoot) {
       sendToChildren(new MinimalEdgeMsg(minWeight));
-      // System.out.println("Root " + ID + " sent minWieght " + minWeight + " to children.");
       WeightedEdge mwoe = calcMWOE();
       if (mwoe == null || mwoe.weight > minWeight) {
         this.amRoot = false;
         this.parent = null;
-        // System.out.println("Root " + ID + " is no longer root.");
         this.minWeight = mwoe == null ? Integer.MAX_VALUE : mwoe.weight;
       }
     }
     if(inbox.hasNext()) {
       MinimalEdgeMsg msg = (MinimalEdgeMsg)inbox.next();
       GraphNode sender = (GraphNode) inbox.getSender();
-      // System.out.println(ID + " Received minWeight " + msg.weight + " from " + sender.ID + ", minWeight=" + minWeight);
       if (sender.equals(parent)) {
         if (minWeight == msg.weight && minWeight != Integer.MAX_VALUE) {
           amRoot = true;
-          // System.out.println("Root " + ID + " is now root.");
         }
         sendToChildren(msg);
       }
@@ -238,7 +239,6 @@ public class GraphNode extends Node {
       Message msg = inbox.next();
       GraphNode sender = (GraphNode) inbox.getSender();
       if (msg instanceof ConnectMsg) {
-        // System.out.println("Got ConnectMsg");
         if (sender.equals(parent)) {
           if (fragID > parent.fragID) {
             this.amRoot = true;
@@ -248,7 +248,6 @@ public class GraphNode extends Node {
         }
         this.children.add(sender);
       } else if (msg instanceof FragmentIdMsg) {
-        // System.out.println(ID);
         this.fragID = ((FragmentIdMsg)msg).fragID;
         sendToChildren(msg);
       }
@@ -275,6 +274,27 @@ public class GraphNode extends Node {
         } else serverReady = true;
         this.children.remove(sender);
         this.parent = sender;
+      }
+    } else if (!taskCompleted) {
+      if (task != null) {taskSender.sendToParent(new ServerMsg(task, taskSender)); task = null;}
+      while(inbox.hasNext()) {
+        ServerMsg msg = (ServerMsg) inbox.next();
+        if (msg.arrived) {
+          if (msg.path.empty()) {
+            Tools.appendToOutput("Your message: [" + msg.msg + "] is received successfully, and can now be processed\n");
+            taskCompleted = true;
+          } else {
+            GraphNode n = msg.path.pop();
+            send(msg, n);
+          }
+        } else {
+          if (isServer) {
+            Tools.appendToOutput("Server " + ID + " received a new message.\n");
+            msg.arrived = true;
+            GraphNode n = msg.path.pop();
+            send(msg, n);
+          } else {msg.appendPath(this); sendToParent(msg);}
+        }
       }
     }
   }
@@ -333,10 +353,24 @@ public class GraphNode extends Node {
 
 	@NodePopupMethod(menuText = "Set as Server")
   public void setAsServer() {
+    if (server == this) return;
     if (server != null) server.isServer = false;
     server = this;
     serverReady = false;
     this.isServer = true;
+  }
+
+
+	@NodePopupMethod(menuText = "Send Message to Server")
+  public void sendMessageToServer() {
+    if (server == null) Tools.warning("No server set.");
+    else if (!serverReady) Tools.warning("New server set recently without running the simulation. Run the simulation first to make sure all edges are redirected to the new server.");
+    else if (server == this) Tools.warning("Cannot send task to self.");
+    else {
+      task = Tools.showQueryDialog("Enter message to send to server");
+      taskCompleted = false;
+      taskSender = this;
+    }
   }
 
 

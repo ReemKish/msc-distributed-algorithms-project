@@ -1,10 +1,16 @@
 package projects.centralized_computing;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import projects.centralized_computing.nodes.nodeImplementations.GraphNode;
+import projects.centralized_computing.nodes.edges.WeightedEdge;
+
 
 import sinalgo.runtime.AbstractCustomGlobal;
 import sinalgo.tools.Tools;
 import sinalgo.nodes.Node;
+import sinalgo.nodes.edges.Edge;
 import sinalgo.runtime.Runtime;
 
 
@@ -26,10 +32,39 @@ public class CustomGlobal extends AbstractCustomGlobal {
   public static State state = State.getMWOE;
   public static int phase = 0;
   public static int round = 1;
+  public static boolean declaredResults = false;
 
   public boolean hasTerminated() {
+    // Returns whether the algorithm has terminated, i.e. - when all nodes have the same fragment ID
     boolean algoTerminated = phase >= Math.log(getNumNodes()) / Math.log(2);
-    if (!algoTerminated || !GraphNode.serverReady) return false;
+    if (!algoTerminated || !GraphNode.serverReady || !GraphNode.taskCompleted) return false;
+    if (state == State.finished && !declaredResults) {
+      long totalWeight = 0;
+      long treeWeight = 0;
+      for (Node n : Tools.getNodeList()) {
+        GraphNode node = (GraphNode) n;
+        for (Edge e : node.outgoingConnections) {
+          WeightedEdge edge = (WeightedEdge) e;
+          totalWeight += edge.weight;
+          if (edge.startNode.isParentOf(edge.endNode)) {
+            treeWeight += edge.weight;
+          }
+        }
+      }
+      totalWeight /= 2;
+      Tools.appendToOutput("GHS Terminated with MST weight: " + treeWeight + "\n");
+      declaredResults = true;
+      // write results to a csv file where each line is of the form: <num_nodes>, <total_weight>, <tree_weight>
+      String filename = "/home/reem/results.csv";
+      try {
+        FileWriter fw = new FileWriter(filename, true);
+        fw.write(Integer.toString(getNumNodes()) + ", " + Long.toString(totalWeight) + ", " + Long.toString(treeWeight) + "\n");
+        fw.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
     return true;
   }
 
@@ -52,7 +87,7 @@ public class CustomGlobal extends AbstractCustomGlobal {
   public boolean isFinished() {
     // Returns whether the algorithm is finished, i.e. - when all nodes have the same fragment ID
     int fragID = -1;
-    for(Node n : Tools.getNodeList()) {
+    for(Node n : Runtime.nodes) {
       GraphNode node = (GraphNode) n;
       if(fragID == -1) fragID = node.fragID;
       else if(fragID != node.fragID) return false;
@@ -89,7 +124,7 @@ public class CustomGlobal extends AbstractCustomGlobal {
 	@CustomButton(imageName="NodeWithFragID.gif", toolTipText="Set the nodes' labels to their Fragment IDs.")
   public void setNodeLabelFragID() { GraphNode.setLabelFragID(); }
 
-  @AbstractCustomGlobal.CustomButton(buttonText = "Toggle Weights", toolTipText = "Toggle visibility of the edges' weights.")
+	@CustomButton(imageName="Weights.gif", toolTipText="Toggle visibility of the edges' weights.")
   public void toggleWeightsButton() {
     showWeights = !showWeights;
     Tools.repaintGUI();
