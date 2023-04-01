@@ -54,15 +54,6 @@ public class CustomGlobal extends AbstractCustomGlobal {
       totalWeight /= 2;
       Tools.appendToOutput("GHS Terminated with MST weight: " + treeWeight + "\n");
       declaredResults = true;
-      // write results to a csv file where each line is of the form: <num_nodes>, <total_weight>, <tree_weight>
-      String filename = "/home/reem/results.csv";
-      try {
-        FileWriter fw = new FileWriter(filename, true);
-        fw.write(Integer.toString(getNumNodes()) + ", " + Long.toString(totalWeight) + ", " + Long.toString(treeWeight) + "\n");
-        fw.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
 
     return true;
