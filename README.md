@@ -33,7 +33,7 @@ It is recommended to moderate the refresh rate since principal visual changes oc
 
 The nodes are colored by fragment association, notice that with each phase - the number of different colors decreases appropriately as clusters merge together. At the end of the algorithm all nodes are colored blue, tree edges black and other edges a faint gray.
 
-## Server-Client Communication 
+## Client-Server Communication 
 After completion of the GHS algorithm, the user may choose a node to be declared 'server' and another node to communicate with it.
 To select a node as the server, make sure GHS terminated, i.e. all nodes are blue and edges black/gray.
 Right click the node and choose "Set as Server". The chosen node will be highlighted red:
