@@ -2,6 +2,8 @@
 Project for the M.Sc. course "22932 Distributed Algorithms for Communication Networks" of The Open University of Israel.
 The code and Markdown documents are available at the [github repository](https://github.com/ReemKish/msc-distributed-algorithms-project).
 
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+
 # Setup
 ## IDE Setup
 Move the directory `centralized_computing` (inside `src`) to the projects folder of your Sinalgo installation (`src/projects/.`).
