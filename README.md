@@ -1,8 +1,10 @@
 # MSc Distributed Algorithms Project
 Project for the M.Sc. course "22932 Distributed Algorithms for Communication Networks" of The Open University of Israel.
-The code and Markdown documents are available at the [github repository](https://github.com/ReemKish/msc-distributed-algorithms-project).
+The code and Markdown documents are available at the [GitHub repository](https://github.com/ReemKish/msc-distributed-algorithms-project).
 
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+<p align="center">
+  <img src="img/simulation.gif" alt="Simulation" />
+</p>
 
 # Setup
 ## IDE Setup
